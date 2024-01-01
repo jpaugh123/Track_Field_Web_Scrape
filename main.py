@@ -21,8 +21,8 @@ def print_hi(name):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print_hi('Get track and field data')
-    username = "secretsquirrel123@gmail.com"
-    password = "GetTimes4321!"
+    username = "username"
+    password = "passsword"
 
 
     #content = get_page("https://www.athletic.net/team/20591/track-and-field-outdoor/2023", headless=True,
