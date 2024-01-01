@@ -1,82 +1,15 @@
-import selenium
 from bs4 import BeautifulSoup
-import time
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
-import math
-
-import pickle
-
-from selenium.webdriver.common.keys import Keys
-
-from requests_html import HTMLSession
-
-from requests_html import AsyncHTMLSession
 import re
 
 ## https://medium.com/swlh/web-scraping-using-selenium-and-beautifulsoup-adfc8810240a
 
-import nest_asyncio
-
-import time
 
 import pandas as pd
 
-
-def scrape():
-    print("scrape")
-
-    from selenium import webdriver
-
-    driver = webdriver.Chrome()
-    driver.get("https://www.athletic.net/team/20955/track-and-field-outdoor/2023")
-
-    # driver.switch_to.frame("cible")
-
-    # wait = WebDriverWait(driver, 10)
-    # wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, 'td.resultatIntitule')))
-
-    # print(driver.page_source)
-
-    # soup = BeautifulSoup(driver.page_source, 'lxml')
-    # print(soup)
-    time.sleep(10)
-
-    athlete_name = driver.find_element(By.className("btn btn-link px-0 py-1"))
-    print(athlete_name)
-
-
-def scrape2():
-    url = "https://www.athletic.net/team/20955/track-and-field-outdoor/2023"
-    session = HTMLSession()
-    response = session.get(url)
-    response.html.render()
-
-    print(response.content)
-
-
-async def get_html(url):
-    session = AsyncHTMLSession()
-    r = await session.get(url)
-    await r.html.arender()
-    h1 = r.html.find('h1', first=True)
-    print(h1.text)
-
-
-def scrape3():
-    url = "https://www.athletic.net/team/20955/track-and-field-outdoor/2023"
-    nest_asyncio.apply()
-
-    session = HTMLSession()
-    response = session.get(url)
-    response.html.render()
-
-    # print(response.content)
-
-    print(response.text)
-    # print(response.html)
 
 
 from selenium import webdriver
@@ -89,40 +22,17 @@ from selenium.common.exceptions import TimeoutException
 ## https://www.zenrows.com/blog/dynamic-web-pages-scraping-python#selenium
 ## https://stackoverflow.com/questions/26566799/wait-until-page-is-loaded-with-selenium-webdriver-for-python
 
-def scrape4():
-    url = "https://www.athletic.net/team/20955/track-and-field-outdoor/2023"
-    driver = webdriver.Chrome(service=ChromeService(
-        ChromeDriverManager().install()))
 
-    driver.get(url)
-    print(driver.page_source)
-
-"""
-def get_page_old(url, headless=True, elementXPath=None):
-    chrome_options = Options()
-    if headless:
-        chrome_options.add_argument("--headless")
-
-    driver = webdriver.Chrome(options=chrome_options, service=ChromeService(
-        ChromeDriverManager().install()))
-
-    driver.get(url)
-
-    if elementXPath is not None:
-        delay = 6  # seconds
-        try:
-            myElem = WebDriverWait(driver, delay).until(EC.visibility_of_element_located((By.XPATH, elementXPath)))
-            # print("Page is ready!")
-        except TimeoutException:
-            print("Loading took too much time!", url)
-
-        return driver.page_source
-"""
-""" https://github.com/SergeyPirogov/webdriver_manager/issues/536
-"" https://www.techbeamers.com/selenium-webdriver-waits-python/
-"""
 
 def get_page(url, headless=True, elementXPath=None, implicit_delay=None):
+    """
+    Gets the name page HTML for the url provided using selenium webdriver with Chrome
+    :param url: The url to get the page for
+    :param headless: True for running selenium without opening chrome (faster). False to open CHrome (good for debugging)
+    :param elementXPath: The XPath for an element whose presence will tell seleium that the page is properly loaaded
+    :param implicit_delay: Delay setting
+    :return: the html for the page, pulled after the page is finished loading
+    """
     chrome_options = Options()
     if headless:
         chrome_options.add_argument("--headless")
@@ -150,6 +60,11 @@ def get_page(url, headless=True, elementXPath=None, implicit_delay=None):
 
 
 def get_athletes_for_team(url):
+    """
+    Get the athletes for a team
+    :param url: the url for a team
+    :return: THe list of urls for athletes on the team - the link is to athletic.net
+    """
     athletes = []
     content = get_page(url, elementXPath="//a[starts-with(@href,'/athlete')]")
 
@@ -167,6 +82,10 @@ def get_athletes_for_team(url):
 
 
 def get_teams_div1():
+    """
+    Get the list of teams for division 1 track and field using the athletic.net page (thi is hard coded below)
+    :return: The list of division 1 team urls in athletic.net
+    """
     teams = {}
     url = "https://www.athletic.net/TrackAndField/College/NCAA/D1.aspx"
     content = get_page(url, elementXPath="//a[starts-with(@href,'/team/')]")
@@ -183,6 +102,12 @@ def get_teams_div1():
 
 
 def get_division1():
+    """
+    Get the list of of athletes for D1 track and field for years provider below in years (variable defined below). THis uses athletic.net web page definition of teams and rosters
+    The list of athletes - for each a team, team link, athlete name, and athlete link is returned
+    The result is written to a csv file Division1Players.csv
+    :return: none
+    """
     years = ['2023', '2022', '2021', '2020', '2019', '2018']
 
     teams = get_teams_div1()
@@ -213,6 +138,12 @@ def get_division1():
 
 
 def get_division1_decade(max_teams_to_get = -1):
+    """
+    THis is the same as get_division1 - returns the list of athletes on teams for D1 track and field.
+    The list of athletes is written to a dataframe Division1PlayersDecade.csv - a dataframe - for each a team, team link, athlete name, and athlete link is returned
+    :param max_teams_to_get: Maxmimum teams to iterate through before stopping. -1 default value is all teams
+    :return: none
+    """
     years = list(range(2013, 2024, 1))
     print("Range is ", str(years))
 
@@ -245,6 +176,10 @@ def get_division1_decade(max_teams_to_get = -1):
 
 
 def test_get_division1():
+    """
+    THis is a test function for getting D1. Dont need this
+    :return:
+    """
     years = ['2023', '2022', '2021', '2020', '2019', '2018']
 
     teams = get_teams_div1()
@@ -264,6 +199,10 @@ def test_get_division1():
 
 
 def get_texas_uil_6a_teams():
+    """
+    Get the list of texas uil 6a teams (high school).
+    :return:
+    """
     teams = {}
     url = "https://www.athletic.net/TrackAndField/Texas/UIL6A.aspx"
     content = get_page(url, elementXPath="//a[starts-with(@href,'/team/')]")
@@ -278,26 +217,17 @@ def get_texas_uil_6a_teams():
 
     return teams
 
-
-def get_texas_uil_6a_athelete_times():
-    return None
-
-
 ## https://stackoverflow.com/questions/3945750/find-a-specific-tag-with-beautifulsoup
 
 # https://www.geeksforgeeks.org/beautifulsoup-find-all-children-of-an-element/
 
 
-def get_times_for_athlete():
-    url = "https://www.athletic.net/athlete/16283783/track-and-field/high-school"
-    content = get_page(url, elementXPath="//a[starts-with(@href,'TrackAndField/meet')]")
-
-    soup = BeautifulSoup(content, "html.parser")
-    result = get_athlete_bio_results(soup)
-    return result
-
-
 def get_athlete_bio_results(soup):
+    """
+    Get the athletic event results from the provided HTML from athletic.net for an individual athlete
+    :param soup: The beautiful soup (HTML) for an athlete from athletics.net
+    :return: A dataframe
+    """
     seasons = []
     events = []
     placements = []
@@ -348,24 +278,6 @@ def get_athlete_bio_results(soup):
     print("meetNames", meetNames)
     print("meetCode", meetCode)
 
-"""
-def get_failed_url():
-    div1_althletes = []
-
-    failed_url = pd.read_csv("failed_url.csv")
-    # print(failed_url)
-    for team_url in failed_url:
-        atheletes = get_athletes_for_team(team_url)
-        # print(team_url, year, atheletes)
-        for athletes_on_team in atheletes:
-            div1_althletes.append([key, teams[key], year, athletes_on_team['name'], athletes_on_team['link']])
-
-        # print(div1_althletes)
-
-        # convert to a dataframe
-    df_div1 = pd.DataFrame(div1_althletes, columns=['Team', 'TeamLink', 'Year', 'AthleteName', 'AthleteLink'])
-    df_div1.to_csv('Division1PlayerFailed.csv')
-"""
 
 def get_athletes_from_div1_file(batch_size=1000,
                                 max_records=-1,
@@ -478,6 +390,10 @@ def get_athletes_from_div1_file(batch_size=1000,
     df.to_csv(file_name)
 
 def get_swimming_div1_teams():
+    """
+    THis code was not working
+    :return:
+    """
     teams = {}
     url = "https://swimswam.com/swimulator-ncaa-d1-team-rankings-teams/"
     content = get_page(url, elementXPath="//a[starts-with(@href,'http://swimulator.herokuapp.com/teamstats/')]")
@@ -495,6 +411,13 @@ def get_swimming_div1_teams():
 from selenium.webdriver.support.select import Select
 
 def get_top_athletes(username, password):
+    """
+    Get the list of top athletes using the url below (top athletes for 200 meters event for example)
+    In the end I just copy/pasted this data into a spread-sheet since it's only 3 pages of data
+    :param username: username for athletic.net. If you dont use an account for this it will only pull the first couple events
+    :param password: password for athletic.net.
+    :return:
+    """
 
     driver = login_athletics(username, password)
 
@@ -510,9 +433,20 @@ def get_top_athletes(username, password):
     return result
 
 
-def get_page_with_driver(driver, elementXPath, url, headless=True):
+def get_page_with_driver(driver, elementXPath, url, headless=True, delay=10):
+    """
+    Uses driver.get to pull the data from the url. Since this function accepts a driver it is faster. After using this function, driver.page_source can provide the data
+    The idea is to use login_athletics first to create the driver and login, and then use this method to pull data from a page using this logged in session. This was the
+    further scrapping is done using a particular user (and gets all the data)
+    :param driver: a selenium driver object
+    :param elementXPath: The html element whose presence tells selenium that the page is loaded fully
+    :param url: the url to pull data from
+    :param headless: ignored
+    :param delay: delay before returning (in addition to elementXPath
+    :return: nothing is returned but the driver now has the driver.page_source with the html
+    """
     driver.get(url)
-    delay = 10  # seconds
+    #delay = 10  # seconds
     try:
         myElem = WebDriverWait(driver, delay).until(EC.visibility_of_element_located((By.XPATH, elementXPath)))
         # print("Page is ready!")
@@ -521,6 +455,13 @@ def get_page_with_driver(driver, elementXPath, url, headless=True):
 
 
 def login_athletics(username,password, headless=True):
+    """
+    Log in to athletic.net using the provided password. This also cretes a selenium driver object that is returned
+    :param username: username for login
+    :param password: password for login
+    :param headless: If true, does not create a browser (which slows things down). Browser is good for debugging sometimes though
+    :return:
+    """
     # get the page so we can login
     start_url = "https://www.athletic.net/account/login"
     elementXPath = "//input[starts-with(@type,'email')]"
@@ -529,8 +470,11 @@ def login_athletics(username,password, headless=True):
     if headless:
         chrome_options.add_argument("--headless")
 
-    driver = webdriver.Chrome(options=chrome_options,
-                              service=Service(executable_path="/chromedriver-linux64/chromedriver"))
+    #driver = webdriver.Chrome(options=chrome_options,
+    #                          service=Service(executable_path="/chromedriver-linux64/chromedriver"))
+
+    driver = webdriver.Chrome(options=chrome_options)
+
     driver.implicitly_wait(5)
     driver.get(start_url)
     delay = 6  # seconds
@@ -556,6 +500,10 @@ def login_athletics(username,password, headless=True):
 
 
 def get_top_athletes_with_login():
+    """
+    Get the list of top athletes with login - this was not used
+    :return:
+    """
 
     url = "https://www.athletic.net/TrackAndField/Division/Event.aspx?DivID=98249&Event=2"
     content = get_page(url, elementXPath="//a[starts-with(@href,'/account')]", implicit_delay=10)
@@ -565,7 +513,13 @@ def get_top_athletes_with_login():
     result = get_athlete_data(soup)
     return result
 
+
 def get_athlete_data(soup):
+    """
+    Get the athlete data from the top athletes (athletes ranked by something) from athletic.net. THis was not used
+    :param soup:
+    :return:
+    """
 
     ages = []
     grades = []
@@ -613,6 +567,31 @@ def get_events_for_ranked_athletes(username,
                                 batch_number=1,
                                 input_file_name = ".\Athletes\Div1TrackFieldTopAthletesAllClean.csv",
                                 output_file_name="RankedAthleteEvents"):
+    """
+    Get the events for the top ranked athletes. This takes the athletic.net username and password as a parameter - these are necessary to get all events for an athlete.
+    THe results are written to the output_file_name
+    THe input_file_name has the list of athletes to scrape events for
+    The steps used in the paper are :
+    1) get the ranked athletes list from the athletic.net site by copy/paste into a spread sheet
+    2) fill in the D1 result per athlet
+    3) take that spread sheet and convert each tab to a csv (one for male 2019, male 2020, female 2019, female 2020)
+    4) upload those csvs to google drive
+    5) use the notebook RankedAthletes.ipynb to convert the list of athletes into /content/gdrive/MyDrive/TrackFieldData/RankedAthletes/Div1TrackFieldTopAthletesAllClean.csv
+    6) take that csv and pull it down locally
+    7) run this fuct ion with the ranked athletes file as input to get the event data for those athletes (writes out the csv)
+    8) take the csv file and upload it back to google drive and pull it in using the RankedAthletes.ipynb (it's the second part of that notebook)
+    9) that notebook will analyze the data - events and such, for those athletes
+
+    :param username: athletic.net username
+    :param password: athletic.net password
+    :param batch_size: the number of athletes to scrape data for before writting to a file
+    :param max_records: the maximum records - use for testing
+    :param records_read: could of records already read (good for restart)
+    :param batch_number: the current batch number (good for restart)
+    :param input_file_name: the file name to read the list of athletes from
+    :param output_file_name: the file name to write the results to
+    :return: nothing
+    """
 
 
     df_ranked_athletes = pd.read_csv(input_file_name)
@@ -642,24 +621,26 @@ def get_events_for_ranked_athletes(username,
             print(url )
             try:
                 get_page_with_driver(driver=driver, url=url,
-                                     elementXPath="//a[starts-with(@href,'TrackAndField/meet')]")
+                                     elementXPath="//a[starts-with(@href,'/TrackAndField/meet')]")
                 soup = BeautifulSoup(driver.page_source, "html.parser")
 
                 shared_athlete_bio_results = soup.find_all("shared-athlete-bio-results")
                 topDivs = shared_athlete_bio_results[0].findChildren(recursive=False)
                 for topDiv in topDivs:
-                    event_table = topDiv.find("shared-athlete-bio-result-table-tf")
-                    event_children = event_table.findChildren(recursive=False)
+
+                    # = topDiv.find("shared-athlete-bio-result-table-tf")
+                    event_children = topDiv.find_all("tbody")
                     # event name is every other so...
-                    is_event_name = True
 
                     for event_table in event_children:
-                        if is_event_name:
-                            event_name = event_table.text
-                            is_event_name = False
-                        else:
-                            event_rows = event_table.find_all("tr")
-                            for event_row in event_rows:
+                        event_rows = event_table.find_all("tr")
+                        is_event_name = True
+
+                        for event_row in event_rows:
+                            if is_event_name:
+                                event_name = event_row.text
+                                is_event_name = False
+                            else:
                                 result_tds = event_row.find_all("td")
 
                                 athelete_link.append(url)
@@ -672,7 +653,8 @@ def get_events_for_ranked_athletes(username,
                                 dates.append(result_tds[3].text)
                                 meetNames.append(result_tds[4].text)
                                 meetCode.append(result_tds[5].text)
-                            is_event_name = True
+                        is_event_name = True
+
             except:
                 print("Cannot load bio data for athlete: row=" + str(records_read) + " Athlete= " + url)
         athlete_links_prior.add(url)
@@ -707,6 +689,5 @@ def get_events_for_ranked_athletes(username,
                       columns=["AtheleteLink", "Season", "Event", "placement", "Time", "Date", "MeetName", "MeetCode"])
     file_name = output_file_name + str(batch_number) + ".csv"
     df.to_csv(file_name)
-
 
 

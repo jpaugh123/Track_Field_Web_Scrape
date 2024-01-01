@@ -21,8 +21,8 @@ def print_hi(name):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print_hi('Get track and field data')
-    username = "USERNAME"
-    password = "YOURPASSWORD"
+    username = "secretsquirrel123@gmail.com"
+    password = "GetTimes4321!"
 
 
     #content = get_page("https://www.athletic.net/team/20591/track-and-field-outdoor/2023", headless=True,
@@ -66,7 +66,15 @@ if __name__ == '__main__':
     #df = get_top_athletes(username, password)
     #print(df.shape[0])
 
-    get_events_for_ranked_athletes(username, password)
+    # for men
+    #get_events_for_ranked_athletes(username, password)
+
+    # for women
+    get_events_for_ranked_athletes(username, password,
+                                   input_file_name = ".\Athletes\Div1TrackFieldTopAthletesAllCleanF.csv",
+                                   output_file_name="RankedAthleteEventsF")
+
+    #get_top_athletes(username, password)
 
 
 
